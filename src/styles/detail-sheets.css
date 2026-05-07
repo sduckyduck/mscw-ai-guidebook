@@ -1,0 +1,311 @@
+.mg-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, .44);
+  padding: 18px;
+  backdrop-filter: blur(8px);
+}
+
+.mg-detail-sheet {
+  width: min(560px, 100%);
+  max-height: min(82vh, 720px);
+  overflow: auto;
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 24px;
+  background: rgba(255,255,255,.97);
+  color: #0f172a;
+  box-shadow: 0 28px 70px rgba(15,23,42,.34);
+  padding: 18px;
+}
+
+.mg-detail-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mg-detail-head span {
+  display: block;
+  color: #64748b;
+  font-size: .74rem;
+  font-weight: 1000;
+}
+
+.mg-detail-head h2 {
+  margin: 2px 0;
+  color: #0f172a;
+  font-size: 1.42rem;
+  line-height: 1;
+  font-weight: 1000;
+  letter-spacing: -.04em;
+}
+
+.mg-detail-head p {
+  margin: 0;
+  color: #0f766e;
+  font-size: .82rem;
+  font-weight: 1000;
+}
+
+.mg-detail-head button {
+  border: 1px solid #dbe6e2;
+  border-radius: 12px;
+  background: #f8faf9;
+  color: #334155;
+  padding: 9px 12px;
+  font-size: .76rem;
+  font-weight: 1000;
+}
+
+.mg-detail-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mg-detail-kpis div,
+.mg-detail-list div,
+.mg-detail-damage,
+.mg-effect-grid article {
+  border: 1px solid #e2ebe8;
+  border-radius: 16px;
+  background: #f8faf9;
+  padding: 10px;
+}
+
+.mg-detail-kpis span,
+.mg-detail-list span,
+.mg-detail-damage span,
+.mg-effect-grid span,
+.mg-skill-progress span {
+  display: block;
+  color: #64748b;
+  font-size: .66rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.mg-detail-kpis strong,
+.mg-detail-list strong,
+.mg-detail-damage strong,
+.mg-effect-grid strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: .96rem;
+  line-height: 1.28;
+  font-weight: 1000;
+}
+
+.mg-detail-copy {
+  margin: 0 0 12px;
+  border-radius: 16px;
+  background: #ecfffb;
+  color: #0f766e;
+  padding: 12px;
+  font-size: .86rem;
+  line-height: 1.5;
+  font-weight: 850;
+}
+
+.mg-detail-damage {
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.mg-detail-damage strong {
+  color: #0f766e;
+  font-size: 1.32rem;
+}
+
+.mg-detail-damage em {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: .7rem;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.mg-detail-list,
+.mg-effect-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.mg-effect-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 10px;
+}
+
+.mg-effect-grid article.wide {
+  grid-column: 1 / -1;
+}
+
+.mg-effect-grid article.wide strong {
+  color: #0f766e;
+  font-size: .98rem;
+}
+
+.mg-skill-progress {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mg-skill-progress div {
+  height: 10px;
+  border-radius: 999px;
+  background: #e2ebe8;
+  overflow: hidden;
+}
+
+.mg-skill-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #0f766e;
+}
+
+.mg-skill-progress em {
+  color: #0f766e;
+  font-size: .66rem;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 1000;
+}
+
+.mg-effect-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.mg-effect-pills span {
+  border: 1px solid #bdece3;
+  border-radius: 999px;
+  background: #f7fffd;
+  color: #0f766e;
+  padding: 7px 9px;
+  font-size: .72rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.mg-skill-row.clickable {
+  cursor: pointer;
+}
+
+.mg-skill-row.clickable:focus-visible,
+.mg-skill-row.clickable:hover {
+  outline: 2px solid rgba(20, 184, 166, .35);
+  outline-offset: 2px;
+}
+
+.mg-skill-row .mg-skill-main small {
+  display: block;
+  margin-top: 3px;
+  color: #0f766e;
+  font-size: .56rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+@media (max-width: 760px) {
+  .mg-detail-backdrop {
+    align-items: end;
+    padding: 10px;
+  }
+
+  .mg-detail-sheet {
+    width: 100%;
+    max-height: 78vh;
+    border-radius: 22px 22px 18px 18px;
+    padding: 14px;
+  }
+
+  .mg-detail-head {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mg-detail-head h2 {
+    font-size: 1.05rem;
+  }
+
+  .mg-detail-head span,
+  .mg-detail-head p,
+  .mg-detail-head button,
+  .mg-detail-copy,
+  .mg-detail-kpis span,
+  .mg-detail-list span,
+  .mg-detail-damage span,
+  .mg-detail-damage em,
+  .mg-effect-grid span,
+  .mg-skill-progress span,
+  .mg-skill-progress em {
+    font-size: .58rem;
+  }
+
+  .mg-detail-head button {
+    padding: 7px 9px;
+    border-radius: 10px;
+  }
+
+  .mg-detail-kpis,
+  .mg-effect-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mg-effect-grid article.wide {
+    grid-column: 1 / -1;
+  }
+
+  .mg-detail-kpis div,
+  .mg-detail-list div,
+  .mg-detail-damage,
+  .mg-detail-copy,
+  .mg-effect-grid article {
+    border-radius: 12px;
+    padding: 8px;
+  }
+
+  .mg-detail-kpis strong,
+  .mg-detail-list strong,
+  .mg-effect-grid strong,
+  .mg-effect-grid article.wide strong {
+    font-size: .68rem;
+  }
+
+  .mg-detail-damage strong {
+    font-size: .9rem;
+  }
+
+  .mg-effect-pills {
+    gap: 5px;
+  }
+
+  .mg-effect-pills span {
+    padding: 5px 7px;
+    font-size: .52rem;
+  }
+
+  .mg-skill-progress div {
+    height: 8px;
+  }
+
+  .mg-skill-row .mg-skill-main small {
+    font-size: .44rem;
+  }
+}

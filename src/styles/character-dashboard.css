@@ -1,0 +1,446 @@
+.mg-character-dashboard {
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mg-character-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.mg-character-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mg-character-panel-head span {
+  display: block;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.82rem;
+  font-weight: 1000;
+}
+
+.mg-character-panel-head h2,
+.mg-damage-card h2 {
+  margin: 2px 0 0;
+  color: #fff;
+  font-size: clamp(1.24rem, 3.6vw, 1.7rem);
+  line-height: 1.05;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+}
+
+.mg-character-panel-head button {
+  min-height: 36px;
+  border: 1px solid rgba(255,255,255,.26);
+  border-radius: 12px;
+  background: rgba(255,255,255,.16);
+  color: #fff;
+  padding: 0 10px;
+  font-size: .76rem;
+  font-weight: 1000;
+}
+
+.mg-character-note {
+  margin: 0 0 10px;
+  color: rgba(255,255,255,.76);
+  font-size: .82rem;
+  line-height: 1.42;
+  font-weight: 760;
+}
+
+.mg-character-meter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 14px;
+  background: rgba(255,255,255,.12);
+  padding: 8px 10px;
+}
+
+.mg-character-meter span {
+  color: rgba(255,255,255,.78);
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.mg-character-meter strong {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 1000;
+}
+
+.mg-ap-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.mg-ap-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  color: #0f172a;
+  padding: 8px;
+  min-width: 0;
+}
+
+.mg-ap-box span,
+.mg-skill-main span,
+.mg-damage-row span {
+  display: block;
+  color: #667085;
+  font-size: .68rem;
+  font-weight: 1000;
+}
+
+.mg-ap-box strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.4rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.mg-ap-box em {
+  display: block;
+  margin-top: 2px;
+  color: #506070;
+  font-size: .6rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.mg-mini-controls {
+  display: grid;
+  grid-template-columns: 28px 28px;
+  gap: 5px;
+}
+
+.mg-mini-controls button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d7e0dc;
+  border-radius: 9px;
+  background: #f7faf8;
+  color: #176d5b;
+  font-weight: 1000;
+}
+
+.mg-mini-controls button:disabled {
+  color: #b7c1c8;
+  background: #eef2f1;
+  cursor: default;
+}
+
+.mg-skill-stack,
+.mg-damage-list {
+  display: grid;
+  gap: 8px;
+}
+
+.mg-skill-row,
+.mg-damage-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  color: #0f172a;
+  padding: 8px;
+}
+
+.mg-skill-main,
+.mg-damage-row > div {
+  min-width: 0;
+}
+
+.mg-skill-main strong,
+.mg-damage-row strong {
+  display: block;
+  color: #0f172a;
+  font-size: .92rem;
+  line-height: 1.08;
+  font-weight: 1000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mg-damage-row em {
+  color: #0f172a;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.mg-skill-badge {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 0 !important;
+  background: transparent !important;
+  color: #0f172a;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+.mg-skill-icon-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.mg-skill-badge span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d9e2de;
+  border-radius: 8px;
+  background: #fff;
+  color: #6b7280;
+  font-size: .72rem;
+  font-weight: 1000;
+  text-shadow: none;
+}
+
+.mg-skill-badge.neutral span {
+  background: transparent;
+  border-color: transparent;
+}
+
+.mg-skill-badge.badge-1,
+.mg-skill-badge.badge-2,
+.mg-skill-badge.badge-3,
+.mg-skill-badge.warrior,
+.mg-skill-badge.magician,
+.mg-skill-badge.bowman,
+.mg-skill-badge.thief {
+  background: transparent !important;
+}
+
+.mg-monster-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+.mg-monster-icon img {
+  display: block;
+  background: transparent !important;
+}
+
+.mg-monster-icon-empty {
+  color: #b8c2cc;
+  font-weight: 1000;
+}
+
+.mg-character-preview-card,
+.mg-damage-card {
+  border-radius: 20px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 12px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.1);
+}
+
+.mg-character-frame-lg {
+  min-height: 215px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(#dfe6e3 1px, transparent 1px),
+    linear-gradient(90deg, #dfe6e3 1px, transparent 1px),
+    #f9fbfa;
+  background-size: 20px 20px;
+}
+
+.mg-character-frame-lg .real-character-preview {
+  max-height: 210px;
+}
+
+.mg-character-preview-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 9px;
+  color: #667085;
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.mg-character-preview-meta strong,
+.mg-character-preview-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mg-character-preview-meta strong {
+  color: #0f172a;
+}
+
+.mg-damage-card h2 {
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.mg-damage-card .mg-damage-row {
+  border-color: #e0e5e2;
+  background: #fff;
+}
+
+@media (max-width: 760px) {
+  .mg-character-dashboard {
+    max-width: 100%;
+  }
+  .mg-character-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .92fr);
+    gap: 8px;
+  }
+  .mg-character-panel-head {
+    margin-bottom: 6px;
+  }
+  .mg-character-panel-head h2,
+  .mg-damage-card h2 {
+    font-size: .98rem;
+  }
+  .mg-character-panel-head span,
+  .mg-character-note,
+  .mg-character-meter span {
+    font-size: .58rem;
+  }
+  .mg-character-panel-head button {
+    min-height: 28px;
+    border-radius: 9px;
+    padding: 0 7px;
+    font-size: .54rem;
+  }
+  .mg-character-meter {
+    margin-bottom: 6px;
+    padding: 5px 7px;
+    border-radius: 10px;
+  }
+  .mg-character-meter strong {
+    font-size: .9rem;
+  }
+  .mg-ap-grid {
+    gap: 5px;
+  }
+  .mg-ap-box {
+    padding: 5px;
+    border-radius: 10px;
+  }
+  .mg-ap-box span,
+  .mg-skill-main span,
+  .mg-damage-row span {
+    font-size: .48rem;
+  }
+  .mg-ap-box strong {
+    font-size: 1rem;
+  }
+  .mg-ap-box em {
+    font-size: .44rem;
+  }
+  .mg-mini-controls {
+    grid-template-columns: 22px 22px;
+    gap: 3px;
+  }
+  .mg-mini-controls button {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    font-size: .62rem;
+  }
+  .mg-skill-stack,
+  .mg-damage-list {
+    gap: 5px;
+  }
+  .mg-skill-row,
+  .mg-damage-row {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 5px;
+    padding: 5px;
+    border-radius: 10px;
+  }
+  .mg-skill-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+  }
+  .mg-skill-icon-img {
+    width: 26px;
+    height: 26px;
+  }
+  .mg-skill-badge span {
+    width: 24px;
+    height: 24px;
+    font-size: .5rem;
+  }
+  .mg-skill-main strong,
+  .mg-damage-row strong {
+    font-size: .62rem;
+  }
+  .mg-damage-row em {
+    font-size: .68rem;
+  }
+  .mg-character-preview-card,
+  .mg-damage-card {
+    padding: 8px;
+    border-radius: 15px;
+  }
+  .mg-character-frame-lg {
+    min-height: 132px;
+    background-size: 18px 18px;
+  }
+  .mg-character-frame-lg .real-character-preview {
+    max-height: 128px;
+  }
+  .mg-character-preview-meta {
+    margin-top: 5px;
+    font-size: .56rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .mg-character-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .86fr);
+    gap: 6px;
+  }
+  .mg-character-frame-lg {
+    min-height: 116px;
+  }
+  .mg-character-frame-lg .real-character-preview {
+    max-height: 112px;
+  }
+}

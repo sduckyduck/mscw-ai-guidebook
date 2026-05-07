@@ -1,0 +1,155 @@
+.craft-final-page .craft-prof-tabs {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+/* Keep 全部 as the default internal state, but do not show it as a visible tab. */
+.craft-final-page .craft-prof-tab:first-child {
+  display: none;
+}
+
+.craft-final-page .craft-prof-icon {
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  background: #fff;
+}
+
+.craft-final-page .craft-prof-tab:nth-child(2) .craft-prof-icon::before,
+.craft-final-page .craft-prof-tab:nth-child(3) .craft-prof-icon::before,
+.craft-final-page .craft-prof-tab:nth-child(4) .craft-prof-icon::before,
+.craft-final-page .craft-prof-tab:nth-child(5) .craft-prof-icon::before,
+.craft-final-page .craft-prof-tab:nth-child(6) .craft-prof-icon::before,
+.craft-final-page .craft-prof-tab:nth-child(7) .craft-prof-icon::before {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+
+.craft-final-page .craft-prof-tab:nth-child(2) .craft-prof-icon::before {
+  background-image: url('/mscw-guidebook/icons/crafting/smithing_icon.png');
+}
+
+.craft-final-page .craft-prof-tab:nth-child(3) .craft-prof-icon::before {
+  background-image: url('/mscw-guidebook/icons/crafting/weapon_crafting_icon.png');
+}
+
+.craft-final-page .craft-prof-tab:nth-child(4) .craft-prof-icon::before {
+  background-image: url('/mscw-guidebook/icons/crafting/tailoring_icon.png');
+}
+
+.craft-final-page .craft-prof-tab:nth-child(5) .craft-prof-icon::before {
+  background-image: url('/mscw-guidebook/icons/crafting/woodcrafting_icon.png');
+}
+
+.craft-final-page .craft-prof-tab:nth-child(6) .craft-prof-icon::before {
+  background-image: url('/mscw-guidebook/icons/crafting/leatherworking_icon.png');
+}
+
+.craft-final-page .craft-prof-tab:nth-child(7) .craft-prof-icon::before {
+  background-image: url('/mscw-guidebook/icons/crafting/arcforge_icon.png');
+}
+
+.craft-final-page .craft-profession-emoji {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  flex: 0 0 32px !important;
+  border: 1px solid #d8e1dc !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  color: #176d5b !important;
+  overflow: hidden !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+.craft-final-page .craft-prof-title-img {
+  display: block !important;
+  width: 24px !important;
+  height: 24px !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+.craft-final-page .craft-all-title-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #176d5b;
+  font-size: .75rem;
+  font-weight: 1000;
+}
+
+.craft-final-page .craft-summary-panel .craft-panel-title h2 {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.craft-special-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d8e1dc;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.craft-special-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+@media (max-width: 760px) {
+  .craft-final-page .craft-prof-tabs {
+    grid-template-columns: repeat(6, minmax(58px, 1fr));
+  }
+
+  .craft-final-page .craft-prof-tab:nth-child(7) strong {
+    font-size: .46rem;
+  }
+
+  .craft-final-page .craft-profession-emoji {
+    width: 27px !important;
+    height: 27px !important;
+    min-width: 27px !important;
+    flex-basis: 27px !important;
+    border-radius: 8px !important;
+  }
+
+  .craft-final-page .craft-prof-title-img,
+  .craft-final-page .craft-all-title-mark {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .craft-special-icon {
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+  }
+
+  .craft-special-icon img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 430px) {
+  .craft-final-page .craft-prof-tabs {
+    grid-template-columns: repeat(6, 58px);
+  }
+}

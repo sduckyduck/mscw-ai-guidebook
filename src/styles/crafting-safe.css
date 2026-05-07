@@ -1,0 +1,614 @@
+.craft-safe-page {
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+  color: #0f172a;
+}
+
+.craft-safe-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  border-radius: 28px;
+  background: radial-gradient(circle at 88% 8%, rgba(255,255,255,.16), transparent 210px), linear-gradient(160deg, #0f6d67 0%, #155c68 100%);
+  color: white;
+  padding: 24px;
+  box-shadow: 0 18px 44px rgba(18,58,67,.18);
+}
+
+.craft-safe-hero span {
+  display: inline-block;
+  margin-bottom: 7px;
+  color: rgba(255,255,255,.78);
+  font-size: .8rem;
+  font-weight: 1000;
+}
+
+.craft-safe-hero h1 {
+  margin: 0;
+  color: white;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: .95;
+  letter-spacing: -.06em;
+  font-weight: 1000;
+}
+
+.craft-safe-hero p {
+  max-width: 660px;
+  margin: 10px 0 0;
+  color: rgba(255,255,255,.88);
+  font-size: .96rem;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.craft-safe-hero em {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.9);
+  padding: 9px 12px;
+  font-size: .72rem;
+  font-style: normal;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.craft-safe-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  border: 1px solid rgba(15,118,110,.12);
+  border-radius: 22px;
+  background: rgba(255,255,255,.94);
+  padding: 10px;
+  box-shadow: 0 12px 30px rgba(15,23,42,.06);
+}
+
+.craft-safe-tabs button {
+  display: grid;
+  place-items: center;
+  grid-template-rows: 32px auto;
+  gap: 6px;
+  min-width: 0;
+  min-height: 78px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: transparent;
+  color: #536272;
+  padding: 8px 4px;
+  font-weight: 1000;
+  cursor: pointer;
+}
+
+.craft-safe-tabs button.active {
+  border-color: #b7d0c4;
+  background: #dceee7;
+  color: #176d5b;
+}
+
+.craft-safe-tabs strong {
+  display: block;
+  max-width: 100%;
+  font-size: .66rem;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.craft-safe-prof-icon,
+.craft-safe-material-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: 1px solid #d8e1dc;
+  border-radius: 10px;
+  background: #fff;
+  color: #176d5b;
+  font-size: .78rem;
+  font-weight: 1000;
+  overflow: hidden;
+}
+
+.craft-safe-prof-icon.title {
+  flex: 0 0 32px;
+}
+
+.craft-safe-prof-icon img,
+.craft-safe-material-icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.craft-safe-msio-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.craft-safe-msio-icon > div {
+  margin: 0 !important;
+  background: #fff !important;
+}
+
+.craft-safe-controls,
+.craft-safe-card {
+  border: 1px solid rgba(15,118,110,.12);
+  border-radius: 24px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 12px 34px rgba(15,23,42,.07);
+}
+
+.craft-safe-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+}
+
+.craft-safe-controls label {
+  display: grid;
+  gap: 5px;
+}
+
+.craft-safe-controls span {
+  color: #64748b;
+  font-size: .68rem;
+  font-weight: 1000;
+}
+
+.craft-safe-controls select,
+.craft-safe-title select,
+.recipe-toolbar select,
+.recipe-toolbar input {
+  width: 100%;
+  border: 1px solid #dbe6e2;
+  border-radius: 14px;
+  background: #f8faf9;
+  color: #0f172a;
+  padding: 10px 12px;
+  font-size: .82rem;
+  font-weight: 1000;
+  outline: none;
+}
+
+.craft-safe-grid {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr 1fr;
+  gap: 12px;
+}
+
+.craft-safe-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.craft-safe-card {
+  padding: 14px;
+  min-width: 0;
+}
+
+.craft-safe-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.craft-safe-title h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.04rem;
+  line-height: 1.08;
+  font-weight: 1000;
+  letter-spacing: -.035em;
+}
+
+.craft-safe-title small {
+  color: #64748b;
+  font-size: .68rem;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.craft-safe-title select {
+  max-width: 220px;
+  padding: 8px 10px;
+  font-size: .72rem;
+}
+
+.craft-safe-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: .78rem;
+  line-height: 1.35;
+  font-weight: 850;
+}
+
+.craft-safe-card .note,
+.craft-load-note {
+  margin-top: 10px;
+  border-radius: 14px;
+  background: #ecfffb;
+  color: #0f766e;
+  padding: 10px;
+  font-size: .74rem;
+  line-height: 1.35;
+  font-weight: 950;
+}
+
+.craft-safe-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.craft-safe-kpis div {
+  border: 1px solid #e2ebe8;
+  border-radius: 16px;
+  background: #f8faf9;
+  padding: 10px;
+  min-width: 0;
+}
+
+.craft-safe-kpis span {
+  display: block;
+  color: #64748b;
+  font-size: .62rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.craft-safe-kpis strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f766e;
+  font-size: .9rem;
+  line-height: 1.08;
+  font-weight: 1000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.craft-safe-list,
+.matrix-list {
+  display: grid;
+  gap: 7px;
+}
+
+.craft-safe-list button {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 1px solid #e2ebe8;
+  border-radius: 14px;
+  background: #fff;
+  color: #0f172a;
+  padding: 9px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.craft-safe-list b,
+.craft-safe-list em {
+  color: #0f766e;
+  font-size: .74rem;
+  font-style: normal;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.craft-safe-list span {
+  min-width: 0;
+  font-size: .78rem;
+  line-height: 1.05;
+  font-weight: 1000;
+}
+
+.craft-safe-list small {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: .58rem;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.craft-safe-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.craft-safe-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #bdece3;
+  border-radius: 999px;
+  background: #f7fffd;
+  color: #0f766e;
+  padding: 6px 9px;
+  font-size: .7rem;
+  line-height: 1;
+  font-weight: 1000;
+  cursor: pointer;
+}
+
+.craft-safe-chips button.active {
+  background: #0f766e;
+  color: #fff;
+}
+
+.craft-safe-farm {
+  background: radial-gradient(circle at top right, rgba(236,255,251,.74), transparent 32%), rgba(255,255,255,.94);
+}
+
+.farm-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, .75fr) minmax(0, 1.45fr);
+  gap: 12px;
+}
+
+.material-focus {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  border: 1px solid #d8e9e5;
+  border-radius: 18px;
+  background: #f8faf9;
+  padding: 12px;
+}
+
+.material-focus strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 1000;
+}
+
+.material-focus span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+.material-focus p {
+  margin: 8px 0 0;
+  color: #31545d;
+  font-size: .76rem;
+}
+
+.drop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.drop-grid article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  border: 1px solid #e2ebe8;
+  border-radius: 16px;
+  background: #fff;
+  padding: 9px;
+}
+
+.drop-grid strong {
+  display: block;
+  font-size: .82rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.drop-grid span,
+.drop-grid em {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: .62rem;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.drop-grid em {
+  color: #0f766e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matrix-list > div {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #e2ebe8;
+  border-radius: 15px;
+  background: #fff;
+  padding: 9px;
+}
+
+.matrix-list p {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.matrix-list strong {
+  font-size: .82rem;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.matrix-list small {
+  color: #64748b;
+  font-size: .62rem;
+  font-weight: 950;
+}
+
+.matrix-list nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.matrix-list em,
+.zero-route span {
+  border-radius: 999px;
+  background: #ecfffb;
+  color: #0f766e;
+  padding: 5px 7px;
+  font-size: .58rem;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 1000;
+}
+
+.zero-route {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.recipe-toolbar {
+  display: grid;
+  grid-template-columns: minmax(120px, .6fr) minmax(180px, 1.4fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.recipe-grid article {
+  border: 1px solid #e2ebe8;
+  border-radius: 16px;
+  background: #fff;
+  padding: 10px;
+}
+
+.recipe-grid article > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+.recipe-grid strong {
+  min-width: 0;
+  font-size: .82rem;
+  line-height: 1.05;
+  font-weight: 1000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recipe-grid span {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: .62rem;
+  font-weight: 950;
+}
+
+.recipe-grid p {
+  margin: 7px 0 0;
+  color: #31545d;
+  font-size: .66rem;
+}
+
+@media (max-width: 980px) {
+  .craft-safe-grid,
+  .craft-safe-two,
+  .farm-layout {
+    grid-template-columns: 1fr;
+  }
+  .recipe-grid,
+  .drop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .craft-safe-page { gap: 10px; }
+  .craft-safe-hero { flex-direction: column; border-radius: 24px; padding: 18px; }
+  .craft-safe-hero h1 { font-size: 2.15rem; }
+  .craft-safe-hero p { font-size: .78rem; }
+  .craft-safe-hero em { font-size: .62rem; padding: 7px 10px; }
+  .craft-safe-tabs { grid-template-columns: repeat(6, 58px); overflow-x: auto; gap: 7px; border-radius: 20px; padding: 8px; -webkit-overflow-scrolling: touch; }
+  .craft-safe-tabs::-webkit-scrollbar { display: none; }
+  .craft-safe-tabs button { min-height: 62px; border-radius: 13px; grid-template-rows: 27px auto; gap: 4px; padding: 6px 3px; }
+  .craft-safe-tabs strong { font-size: .5rem; }
+  .craft-safe-prof-icon,
+  .craft-safe-material-icon { width: 27px; height: 27px; min-width: 27px; border-radius: 8px; }
+  .craft-safe-prof-icon img,
+  .craft-safe-material-icon img { width: 20px; height: 20px; }
+  .craft-safe-msio-icon > div { width: 27px !important; height: 27px !important; border-radius: 8px !important; }
+  .craft-safe-msio-icon img { width: 20px !important; height: 20px !important; }
+  .craft-safe-controls { grid-template-columns: 1fr 1fr; border-radius: 18px; padding: 9px; }
+  .craft-safe-controls span { font-size: .52rem; }
+  .craft-safe-controls select,
+  .craft-safe-title select,
+  .recipe-toolbar select,
+  .recipe-toolbar input { border-radius: 11px; padding: 8px; font-size: .58rem; }
+  .craft-safe-card { border-radius: 18px; padding: 10px; }
+  .craft-safe-title h2 { font-size: .8rem; }
+  .craft-safe-title small,
+  .craft-safe-card p,
+  .craft-safe-card .note,
+  .material-focus p { font-size: .52rem; }
+  .craft-safe-kpis { grid-template-columns: 1fr; gap: 5px; }
+  .craft-safe-kpis div { border-radius: 12px; padding: 7px; }
+  .craft-safe-kpis span,
+  .drop-grid span,
+  .drop-grid em,
+  .matrix-list small,
+  .recipe-grid span { font-size: .48rem; }
+  .craft-safe-kpis strong,
+  .craft-safe-list span,
+  .drop-grid strong,
+  .matrix-list strong,
+  .recipe-grid strong { font-size: .6rem; }
+  .craft-safe-list button,
+  .matrix-list > div,
+  .drop-grid article,
+  .recipe-grid article { border-radius: 12px; padding: 7px; }
+  .craft-safe-list b,
+  .craft-safe-list em,
+  .craft-safe-list small,
+  .craft-safe-chips button,
+  .matrix-list em,
+  .zero-route span,
+  .recipe-grid p { font-size: .48rem; }
+  .recipe-toolbar,
+  .recipe-grid,
+  .drop-grid { grid-template-columns: 1fr; }
+}

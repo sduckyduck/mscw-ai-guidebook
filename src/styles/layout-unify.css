@@ -1,0 +1,170 @@
+/* Unified page sizing and map-page visual treatment.
+   Keeps Overview, Character, and Maps on the same Guidebook canvas width. */
+
+.app-shell {
+  width: min(100%, 860px) !important;
+  max-width: 860px !important;
+}
+
+.mg-dashboard,
+.mg-character-dashboard,
+.app-shell > .section-card {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Maps page: use the same dark-green dashboard shell as Overview/Character. */
+.app-shell > .section-card {
+  margin-top: 10px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255, 255, 255, 0.16), transparent 210px),
+    linear-gradient(160deg, #0f6d67 0%, #155c68 100%);
+  color: white;
+  box-shadow: 0 22px 54px rgba(12, 75, 80, 0.28);
+  padding: clamp(14px, 3vw, 24px);
+  overflow: hidden;
+}
+
+.app-shell > .section-card > h2 {
+  color: #fff;
+  font-size: clamp(1.65rem, 5vw, 3rem);
+  line-height: 1.05;
+  font-weight: 1000;
+  letter-spacing: -0.055em;
+  margin: 0 0 10px;
+}
+
+.app-shell > .section-card > .section-copy {
+  color: rgba(255,255,255,.78);
+  font-size: clamp(.9rem, 2.9vw, 1.08rem);
+  line-height: 1.42;
+  font-weight: 750;
+  margin: 0 0 16px;
+}
+
+.app-shell > .section-card .mg-map-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.app-shell > .section-card .mg-map-card {
+  border-color: rgba(255,255,255,.24);
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 12px 26px rgba(0,0,0,.10);
+}
+
+.app-shell > .section-card .mg-map-card-image {
+  background: #eaf4ef;
+}
+
+.app-shell > .section-card .mg-map-card h3 {
+  color: #0f172a;
+}
+
+.app-shell > .section-card .item-label {
+  color: #176d5b;
+}
+
+.app-shell > .section-card .small-tags span {
+  background: #ecfffb;
+  color: #0f766e;
+}
+
+/* Make Character use the same width as Overview while keeping the internal two-column layout. */
+.mg-character-dashboard {
+  max-width: none !important;
+}
+
+.mg-character-grid {
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
+}
+
+@media (max-width: 980px) {
+  .app-shell > .section-card .mg-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .app-shell > .section-card {
+    margin-top: 6px;
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .app-shell > .section-card > h2 {
+    font-size: clamp(1.15rem, 5vw, 1.62rem);
+    line-height: 1.02;
+  }
+
+  .app-shell > .section-card > .section-copy {
+    margin-bottom: 8px;
+    font-size: .72rem;
+    line-height: 1.22;
+  }
+
+  .app-shell > .section-card .mg-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .app-shell > .section-card .mg-map-card {
+    border-radius: 13px;
+  }
+
+  .app-shell > .section-card .mg-map-card-image {
+    height: 78px;
+    padding: 6px;
+  }
+
+  .app-shell > .section-card .mg-map-rank {
+    top: 6px;
+    left: 6px;
+    min-width: 30px;
+    height: 24px;
+    font-size: .58rem;
+  }
+
+  .app-shell > .section-card .mg-map-card-body {
+    padding: 7px;
+  }
+
+  .app-shell > .section-card .mg-map-card h3 {
+    margin-bottom: 6px;
+    font-size: .72rem;
+  }
+
+  .app-shell > .section-card .mg-map-target strong {
+    font-size: .62rem;
+  }
+
+  .app-shell > .section-card .mg-map-target span,
+  .app-shell > .section-card .item-label,
+  .app-shell > .section-card .small-tags span {
+    font-size: .48rem;
+  }
+
+  .app-shell > .section-card .small-tags {
+    gap: 4px;
+    margin: 7px 0 0;
+  }
+
+  .app-shell > .section-card .small-tags span {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-shell > .section-card .mg-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

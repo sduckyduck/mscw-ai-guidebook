@@ -1,0 +1,102 @@
+.mg-sp-meter {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+}
+
+.mg-sp-meter em {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  color: rgba(255,255,255,.68);
+  font-size: .66rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.mg-sp-panel > .mg-character-note {
+  display: none;
+}
+
+.mg-skill-stack.compact {
+  gap: 6px;
+}
+
+.mg-skill-side-card {
+  border-radius: 20px;
+  background: rgba(255,255,255,.96);
+  color: #0f172a;
+  padding: 12px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.1);
+}
+
+.mg-skill-side-card .mg-character-panel-head {
+  margin-bottom: 8px;
+}
+
+.mg-skill-side-card .mg-character-panel-head span {
+  color: #667085;
+}
+
+.mg-skill-side-card .mg-character-panel-head h2 {
+  color: #0f172a;
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+}
+
+.mg-skill-side-card .mg-sp-meter {
+  border-color: #e0e5e2;
+  background: #f8fbfa;
+  margin-bottom: 8px;
+}
+
+.mg-skill-side-card .mg-sp-meter span,
+.mg-skill-side-card .mg-sp-meter em {
+  color: #667085;
+}
+
+.mg-skill-side-card .mg-sp-meter strong {
+  color: #0f172a;
+}
+
+.mg-second-skill-card {
+  margin-top: 0;
+}
+
+.mg-skill-row.locked {
+  opacity: .48;
+  background: rgba(241,245,249,.82);
+  filter: grayscale(.55);
+}
+
+.mg-skill-row.locked .mg-skill-main strong,
+.mg-skill-row.locked .mg-skill-main span {
+  color: #8a97a5;
+}
+
+.mg-skill-row.locked .mg-skill-icon-img {
+  opacity: .55;
+}
+
+.mg-skill-row.second-job:not(.locked) {
+  border-color: rgba(47, 196, 174, .38);
+  background: rgba(247, 255, 253, .95);
+}
+
+.mg-skill-row.first-job:not(.locked) {
+  border-color: rgba(226, 232, 240, .95);
+}
+
+@media (max-width: 760px) {
+  .mg-sp-meter em {
+    font-size: .48rem;
+  }
+  .mg-skill-stack.compact {
+    gap: 4px;
+  }
+  .mg-skill-side-card {
+    padding: 8px;
+    border-radius: 15px;
+  }
+  .mg-skill-side-card .mg-character-panel-head h2 {
+    font-size: .88rem;
+  }
+}
