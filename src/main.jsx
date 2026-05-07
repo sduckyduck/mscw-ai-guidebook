@@ -3,12 +3,24 @@ import { createRoot } from 'react-dom/client';
 import AppMediaEnhanced from './AppMediaEnhanced.jsx';
 import CoverIntro from './components/CoverIntro.jsx';
 import CraftingMaterialsPageSafe from './components/CraftingMaterialsPageSafe.jsx';
+import AiRoutePage from './components/AiRoutePage.jsx';
 import './styles.css';
 import './styles/cover-intro.css';
 import './styles/materials-page.css';
 import './styles/layout-unify.css';
 
-const TABS = [['overview', '总览'], ['character', '角色'], ['maps', '地图'], ['materials', '材料']];
+const TABS = [
+  ['overview', '总览'],
+  ['character', '角色'],
+  ['ai', 'AI路线'],
+  ['maps', '地图'],
+  ['materials', '材料'],
+];
+
+function getRouteFromHash() {
+  const hash = window.location.hash.replace(/^#/, '');
+  return hash === 'materials' || hash === 'ai' ? hash : '';
+}
 
 function replaceHash(tab) {
   const nextUrl = tab === 'overview'
@@ -17,11 +29,27 @@ function replaceHash(tab) {
   window.history.replaceState(null, '', nextUrl);
 }
 
+function GuidebookNav({ activeRoute, openTab }) {
+  return (
+    <nav className="top-tabs">
+      {TABS.map(([id, name]) => (
+        <button
+          key={id}
+          className={activeRoute === id ? 'top-tab active' : 'top-tab'}
+          onClick={() => openTab(id)}
+        >
+          {name}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 function GuidebookRouter() {
-  const [materialsOpen, setMaterialsOpen] = useState(() => window.location.hash === '#materials');
+  const [activeRoute, setActiveRoute] = useState(() => getRouteFromHash());
 
   useEffect(() => {
-    const sync = () => setMaterialsOpen(window.location.hash === '#materials');
+    const sync = () => setActiveRoute(getRouteFromHash());
     window.addEventListener('popstate', sync);
     window.addEventListener('hashchange', sync);
     return () => {
@@ -32,28 +60,52 @@ function GuidebookRouter() {
 
   const openTab = (tab) => {
     replaceHash(tab);
-    setMaterialsOpen(tab === 'materials');
+    setActiveRoute(tab === 'materials' || tab === 'ai' ? tab : '');
   };
 
-  if (materialsOpen) {
-    return <main className="app-shell">
-      <nav className="top-tabs">
-        {TABS.map(([id, name]) => <button key={id} className={id === 'materials' ? 'top-tab active' : 'top-tab'} onClick={() => openTab(id)}>{name}</button>)}
-      </nav>
-      <CraftingMaterialsPageSafe />
-    </main>;
+  if (activeRoute === 'materials') {
+    return (
+      <main className="app-shell">
+        <GuidebookNav activeRoute="materials" openTab={openTab} />
+        <CraftingMaterialsPageSafe />
+      </main>
+    );
   }
 
-  return <div onClickCapture={(event) => {
-    const button = event.target?.closest?.('button');
-    if (button?.textContent?.trim() === '材料') {
-      event.preventDefault();
-      event.stopPropagation();
-      openTab('materials');
-    }
-  }}>
-    <AppMediaEnhanced />
-  </div>;
+  if (activeRoute === 'ai') {
+    return (
+      <main className="app-shell">
+        <GuidebookNav activeRoute="ai" openTab={openTab} />
+        <AiRoutePage />
+      </main>
+    );
+  }
+
+  return (
+    <>
+      <main className="app-shell" style={{ paddingBottom: 0 }}>
+        <nav className="top-tabs" aria-label="AI guidebook shortcut">
+          <button className="top-tab" onClick={() => openTab('ai')}>AI路线</button>
+        </nav>
+      </main>
+      <div onClickCapture={(event) => {
+        const button = event.target?.closest?.('button');
+        const label = button?.textContent?.trim();
+        if (label === '材料') {
+          event.preventDefault();
+          event.stopPropagation();
+          openTab('materials');
+        }
+        if (label === 'AI路线') {
+          event.preventDefault();
+          event.stopPropagation();
+          openTab('ai');
+        }
+      }}>
+        <AppMediaEnhanced />
+      </div>
+    </>
+  );
 }
 
 function AppWithIntro() {
