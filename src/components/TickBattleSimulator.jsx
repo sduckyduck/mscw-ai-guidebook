@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import CharacterPreview from './CharacterPreview.jsx';
+import MonsterIcon from './MonsterIcon.jsx';
+import OsmsDataImage from './OsmsDataImage.jsx';
 import '../styles/ai-battle-simulator.css';
 
 const TICK_MS = 100;
@@ -114,9 +117,10 @@ function normalizeVisualSpeed(rawSpeed, fallbackSpeed) {
   return clamp(Math.abs(raw) / 2.8, 8, 28);
 }
 
-function getAttributes(raw, fallback) {
+function getAttributes(raw, fallback = {}) {
   const attrs = [...(fallback.attributes ?? [])];
   if (raw?.undead && !attrs.includes('Undead')) attrs.push('Undead');
+  if (raw?.attributes?.length) attrs.push(...raw.attributes);
   if (typeof raw?.elements === 'string' && raw.elements.trim()) attrs.push(raw.elements.trim());
   return Array.from(new Set(attrs));
 }
@@ -124,6 +128,8 @@ function getAttributes(raw, fallback) {
 function normalizeMonster(raw, fallback) {
   return {
     ...fallback,
+    raw: raw ?? fallback.raw,
+    key: fallback.key,
     id: raw?.id ?? fallback.id,
     name: raw?.name ? `${raw.name}` : fallback.name,
     level: safeNumber(raw?.level, fallback.level),
@@ -140,19 +146,98 @@ function normalizeMonster(raw, fallback) {
     touchDamage: safeNumber(raw?.PADamage ?? raw?.physicalAttack, fallback.physicalAttack),
     meso: Math.max(1, Math.round(safeNumber(raw?.exp, fallback.exp) * 1.7)),
     attributes: getAttributes(raw, fallback),
-    source: raw ? 'public/data/app_metadata/monsters.json' : fallback.source,
-    thumbnail: raw?.thumbnail,
-    gif: raw?.gif ?? raw?.gifs?.move,
+    source: raw ? 'recommended/AppData monster' : fallback.source,
+    thumbnail: raw?.thumbnail ?? fallback.thumbnail,
+    gif: raw?.gif ?? raw?.gifs?.move ?? fallback.gif,
   };
 }
 
 function findRawMonster(gameData, fallback) {
   const monsters = Array.isArray(gameData?.monsters) ? gameData.monsters : [];
-  return monsters.find((monster) => fallback.lookupNames.some((name) => String(monster.name).toLowerCase() === name.toLowerCase()));
+  return monsters.find((monster) => fallback.lookupNames?.some((name) => String(monster.name).toLowerCase() === name.toLowerCase()));
 }
 
-function buildMonsterOptions(gameData) {
-  return Object.values(FALLBACK_MONSTERS).map((fallback) => normalizeMonster(findRawMonster(gameData, fallback), fallback));
+function buildMonsterOptions(gameData, visualContext) {
+  const recommended = visualContext?.bestMonster;
+  const options = [];
+  if (recommended) {
+    options.push(normalizeMonster(recommended, {
+      key: 'recommended',
+      id: recommended.id ?? 'recommended',
+      name: recommended.name ?? '推荐怪物',
+      level: recommended.level ?? 1,
+      maxHp: recommended.hp ?? 100,
+      mp: recommended.mp ?? 0,
+      exp: recommended.exp ?? 1,
+      physicalAttack: recommended.PADamage ?? 1,
+      magicAttack: recommended.MADamage ?? 0,
+      physicalDefense: recommended.PDDamage ?? 0,
+      magicDefense: recommended.MDDamage ?? 0,
+      accuracy: recommended.acc ?? 0,
+      avoid: recommended.eva ?? 0,
+      visualSpeed: 14,
+      spawnX: 600,
+      meso: Math.max(1, Math.round((recommended.exp ?? 1) * 1.7)),
+      attributes: [],
+      source: 'current recommended monster',
+      raw: recommended,
+    }));
+  }
+
+  for (const fallback of Object.values(FALLBACK_MONSTERS)) {
+    options.push(normalizeMonster(findRawMonster(gameData, fallback), fallback));
+  }
+
+  const seen = new Set();
+  return options.filter((item) => {
+    const key = String(item.key);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function getGearValue(item, keys) {
+  for (const key of keys) {
+    const value = item?.[key] ?? item?.stats?.[key];
+    if (value !== undefined && value !== null && value !== '') return Number(value) || 0;
+  }
+  return 0;
+}
+
+function sumGear(gear, keys) {
+  return (gear ?? []).reduce((sum, item) => sum + getGearValue(item, keys), 0);
+}
+
+function buildProfile(jobKey, visualContext) {
+  const base = JOB_COMBAT[jobKey] ?? JOB_COMBAT.spearman;
+  if (!visualContext?.statPlan) return base;
+
+  const classId = visualContext.classLine?.id;
+  const stats = visualContext.statPlan.stats ?? {};
+  const derived = visualContext.statPlan.derived ?? {};
+  const gear = visualContext.gear ?? [];
+  const primaryKey = visualContext.classLine?.primaryStat ?? 'STR';
+  const primary = safeNumber(stats[primaryKey], 40);
+  const secondary = safeNumber(stats[visualContext.classLine?.secondaryStat], 20);
+  const weaponAttack = sumGear(gear, ['incPAD', 'incMAD', 'weaponAttack', 'magicAttack']);
+  const gearAccuracy = sumGear(gear, ['incACC', 'accuracy']);
+  const defense = sumGear(gear, ['incPDD', 'incMDD', 'incMHP', 'incHP']);
+  const attackPower = Math.max(base.maxDamage, primary * 1.75 + secondary * 0.35 + weaponAttack * 3.1);
+  const magicMode = classId === 'magician';
+
+  return {
+    ...base,
+    label: `${visualContext.branch?.name ?? base.label}`,
+    maxHp: Math.max(base.maxHp, safeNumber(derived.hp ?? stats.HP, base.maxHp)),
+    maxMp: Math.max(base.maxMp, safeNumber(derived.mp ?? stats.MP, base.maxMp)),
+    minDamage: Math.max(1, Math.round(attackPower * (magicMode ? 0.58 : 0.62))),
+    maxDamage: Math.max(2, Math.round(attackPower * (magicMode ? 1.0 : 1.08))),
+    accuracy: magicMode ? 999 : Math.max(base.accuracy, Math.round(safeNumber(derived.accuracy, base.accuracy) + gearAccuracy)),
+    weaponDefense: Math.max(base.weaponDefense, Math.round(defense * 0.08)),
+    gearAttack: weaponAttack,
+    source: 'Guidebook dashboard stats + gear',
+  };
 }
 
 function getHitRate(profile, monster) {
@@ -172,13 +257,13 @@ function rollDamage(profile, monster) {
   return Math.max(1, Math.round(raw * getDefenseMultiplier(monster.physicalDefense)));
 }
 
-function makeInitialState(profile, monster) {
+function makeInitialState(profile, monster, visualContext) {
   return {
     tick: 0,
     virtualSeconds: 0,
     player: {
       x: 125,
-      level: 18,
+      level: visualContext?.level ?? 18,
       hp: profile.maxHp,
       mp: profile.maxMp,
       maxHp: profile.maxHp,
@@ -273,7 +358,7 @@ function simulateTick(state, profile, monster, policy) {
         player.kills += 1;
         player.exp += monster.exp;
         player.meso += monster.meso;
-        next.log = pushLog(next.log, `击杀 ${monster.name}: ${player.hitsLanded} landed hits so far, +${monster.exp} EXP, +${monster.meso} meso.`);
+        next.log = pushLog(next.log, `击杀 ${monster.name}: +${monster.exp} EXP, +${monster.meso} meso.`);
       }
     } else {
       next.floaters.push({ id: `${next.tick}-miss`, value: 'MISS', type: 'miss', x: mob.x, y: 56, life: 20, opacity: 1 });
@@ -323,16 +408,6 @@ function simulateTick(state, profile, monster, policy) {
     next.log = pushLog(next.log, '死亡并回城复活：路线风险过高，AI 应降低地图难度或提高防御/命中。');
   }
 
-  while (player.exp >= 100) {
-    player.exp -= 100;
-    player.level += 1;
-    player.maxHp += 28;
-    player.maxMp += 8;
-    player.hp = player.maxHp;
-    player.mp = player.maxMp;
-    next.log = pushLog(next.log, `LEVEL UP! 当前 Lv.${player.level}.`);
-  }
-
   return next;
 }
 
@@ -348,33 +423,41 @@ function StatBar({ label, value, max, className }) {
   );
 }
 
-function SimulatorSprite({ type, x, action, iframes = 0, hp, maxHp, image }) {
+function SimulatorSprite({ type, x, action, iframes = 0, hp, maxHp, monster, visualContext }) {
   const left = `${(x / WORLD_WIDTH) * 100}%`;
   return (
     <div className={`ai-sprite ${type} ${action} ${iframes > 0 ? 'iframe' : ''}`} style={{ left }}>
       <div className="ai-sprite-hp"><span style={{ width: pct(hp, maxHp) }} /></div>
       <div className="ai-sprite-body">
-        {image ? <img src={`/${String(image).replace(/^\/+/, '')}`} alt="" /> : (type === 'player' ? '⚔️' : '🐙')}
+        {type === 'player' && visualContext ? (
+          <CharacterPreview classLine={visualContext.classLine} gender={visualContext.gender} gear={visualContext.gear} />
+        ) : monster ? (
+          <MonsterIcon monster={monster.raw ?? monster} size={58} />
+        ) : type === 'player' ? '⚔️' : '🐙'}
       </div>
       <small>{type === 'player' ? action.toUpperCase() : action}</small>
     </div>
   );
 }
 
-export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'balanced', budget = 'low', dataCoverage = null, gameData = null }) {
-  const [monsterKey, setMonsterKey] = useState('zombieMushroom');
+export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'balanced', budget = 'low', dataCoverage = null, gameData = null, visualContext = null }) {
+  const [monsterKey, setMonsterKey] = useState('recommended');
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
 
-  const profile = JOB_COMBAT[jobKey] ?? JOB_COMBAT.spearman;
-  const monsterOptions = useMemo(() => buildMonsterOptions(gameData), [gameData]);
+  const profile = useMemo(() => buildProfile(jobKey, visualContext), [jobKey, visualContext]);
+  const monsterOptions = useMemo(() => buildMonsterOptions(gameData, visualContext), [gameData, visualContext]);
   const monster = monsterOptions.find((item) => item.key === monsterKey) ?? monsterOptions[0];
-  const [sim, setSim] = useState(() => makeInitialState(profile, monster));
+  const [sim, setSim] = useState(() => makeInitialState(profile, monster, visualContext));
+
+  useEffect(() => {
+    if (!monsterOptions.some((item) => item.key === monsterKey)) setMonsterKey(monsterOptions[0]?.key ?? 'zombieMushroom');
+  }, [monsterOptions, monsterKey]);
 
   useEffect(() => {
     setRunning(false);
-    setSim(makeInitialState(profile, monster));
-  }, [jobKey, monsterKey, monster.id]);
+    setSim(makeInitialState(profile, monster, visualContext));
+  }, [jobKey, monsterKey, monster.id, profile.maxHp, profile.maxMp, profile.minDamage, profile.maxDamage, visualContext?.bestMap?.id]);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -389,14 +472,15 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
   const avgDamage = useMemo(() => averageDamageAfterDefense(profile, monster), [profile, monster]);
   const estimatedHits = Math.ceil(monster.maxHp / Math.max(1, avgDamage));
   const hpPerExp = monster.exp > 0 ? (monster.maxHp / monster.exp).toFixed(2) : '—';
+  const map = visualContext?.bestMap;
 
   return (
     <div className="ai-battle-shell">
       <div className="ai-battle-top">
         <div>
-          <p className="eyebrow">Tick-based Visual Simulator</p>
+          <p className="eyebrow">Reactive Tick-based Visual Simulator</p>
           <h2>实时伤害计算模拟器</h2>
-          <p>当前怪物数据优先读取 public/data/app_metadata/monsters.json；没有数据时才使用 fallback。Zombie Mushroom 已按表格修正为 HP 443 / EXP 45 / P.DEF 15 / M.DEF 15 / ACC 108 / AVOID 15。</p>
+          <p>角色图、装备、等级、推荐地图、推荐怪物和怪物数据全部来自当前 Guidebook 推荐状态。右侧数值改变后，下面战斗沙盒会重置并重新按当前状态模拟。</p>
         </div>
         <div className="ai-engine-badge">
           <span>{Math.round(1000 / TICK_MS)} Tick/s</span>
@@ -408,7 +492,7 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
         <label>
           怪物
           <select value={monsterKey} onChange={(event) => setMonsterKey(event.target.value)}>
-            {monsterOptions.map((item) => <option key={item.key} value={item.key}>{item.name}</option>)}
+            {monsterOptions.map((item) => <option key={item.key} value={item.key}>{item.key === 'recommended' ? `推荐：${item.name}` : item.name}</option>)}
           </select>
         </label>
         <label>
@@ -421,23 +505,35 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
           </select>
         </label>
         <button className="ai-primary-btn" onClick={() => setRunning((value) => !value)}>{running ? '暂停模拟' : '开始模拟'}</button>
-        <button className="ai-secondary-btn" onClick={() => setSim(makeInitialState(profile, monster))}>重置</button>
+        <button className="ai-secondary-btn" onClick={() => setSim(makeInitialState(profile, monster, visualContext))}>重置</button>
       </div>
 
       <div className="ai-stage-wrap">
         <div className="ai-stage">
-          <div className="ai-stage-title">Training Field · {profile.label} vs {monster.name} · HP {monster.maxHp}</div>
+          {map?.thumbnail || map?.minimap ? (
+            <div className="ai-stage-bg">
+              <OsmsDataImage className="ai-stage-bg-img" src={map.thumbnail} sources={[map.minimap]} alt={map.name} placeholder="" />
+            </div>
+          ) : null}
+          <div className="ai-stage-title">{map?.name ?? 'Recommended Field'} · {profile.label} vs {monster.name} · HP {monster.maxHp}</div>
           <div className="ai-range-zone" style={{ left: `${((sim.player.x - profile.attackRange) / WORLD_WIDTH) * 100}%`, width: `${(profile.attackRange * 2 / WORLD_WIDTH) * 100}%` }} />
           <div className="ai-collision-zone" style={{ left: `${((sim.player.x - COLLISION_RADIUS) / WORLD_WIDTH) * 100}%`, width: `${(COLLISION_RADIUS * 2 / WORLD_WIDTH) * 100}%` }} />
           <div className="ai-ground-line" />
-          <SimulatorSprite type="player" x={sim.player.x} action={sim.player.action} iframes={sim.player.iframes} hp={sim.player.hp} maxHp={sim.player.maxHp} />
-          {sim.monster.alive ? <SimulatorSprite type="monster" x={sim.monster.x} action={sim.monster.action} hp={sim.monster.hp} maxHp={sim.monster.maxHp} image={monster.gif || monster.thumbnail} /> : <div className="ai-respawn-marker" style={{ left: `${(monster.spawnX / WORLD_WIDTH) * 100}%` }}>respawn...</div>}
+          <SimulatorSprite type="player" x={sim.player.x} action={sim.player.action} iframes={sim.player.iframes} hp={sim.player.hp} maxHp={sim.player.maxHp} visualContext={visualContext} />
+          {sim.monster.alive ? <SimulatorSprite type="monster" x={sim.monster.x} action={sim.monster.action} hp={sim.monster.hp} maxHp={sim.monster.maxHp} monster={monster} /> : <div className="ai-respawn-marker" style={{ left: `${(monster.spawnX / WORLD_WIDTH) * 100}%` }}>respawn...</div>}
           {sim.floaters.map((item) => (
             <div key={item.id} className={`ai-floater ${item.type}`} style={{ left: `${(item.x / WORLD_WIDTH) * 100}%`, bottom: `${item.y}%`, opacity: item.opacity }}>
               {item.value}
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="ai-context-strip">
+        <div><span>推荐地图</span><strong>{map?.name ?? '—'}</strong></div>
+        <div><span>推荐怪物</span><strong>{visualContext?.bestMonster?.name ?? monster.name}</strong></div>
+        <div><span>角色</span><strong>{visualContext?.branch?.name ?? profile.label} Lv.{visualContext?.level ?? sim.player.level}</strong></div>
+        <div><span>装备数</span><strong>{visualContext?.gear?.length ?? 0}</strong></div>
       </div>
 
       <div className="ai-panel-grid">
@@ -448,8 +544,8 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
           <StatBar label="EXP" value={sim.player.exp} max={100} className="exp" />
           <div className="ai-kpi-grid">
             <div><span>Lv</span><strong>{sim.player.level}</strong></div>
-            <div><span>Meso</span><strong>{sim.player.meso}</strong></div>
-            <div><span>Kills</span><strong>{sim.player.kills}</strong></div>
+            <div><span>ACC</span><strong>{profile.accuracy}</strong></div>
+            <div><span>DMG</span><strong>{profile.minDamage}-{profile.maxDamage}</strong></div>
             <div><span>Hits</span><strong>{sim.player.hitsLanded}</strong></div>
           </div>
         </section>
@@ -463,7 +559,6 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
             <p><span>P.DEF / M.DEF</span><strong>{monster.physicalDefense} / {monster.magicDefense}</strong></p>
             <p><span>ACC / AVOID</span><strong>{monster.accuracy} / {monster.avoid}</strong></p>
             <p><span>HP/EXP</span><strong>{hpPerExp}</strong></p>
-            <p><span>Attributes</span><strong>{monster.attributes.length ? monster.attributes.join(' · ') : '—'}</strong></p>
             <p><span>Source</span><strong>{monster.source}</strong></p>
           </div>
         </section>
@@ -501,16 +596,9 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
           </div>
         </section>
         <section className="ai-glass-panel">
-          <h3>数据校验</h3>
-          <p className="section-copy">如果跳字是 111，Zombie Mushroom 的 443 HP 至少需要 4 次命中才会死亡；现在击杀判定只在当前 HP 扣到 0 后触发。</p>
+          <h3>联动状态</h3>
+          <p className="section-copy">当前战斗背景使用推荐地图图片，玩家 sprite 使用 CharacterPreview，怪物 sprite 使用 MonsterIcon。推荐地图和怪物变化后模拟会自动重置。</p>
         </section>
-      </div>
-
-      <div className="ai-architecture-grid">
-        <article><strong>1. Tick Engine</strong><p>每 {TICK_MS}ms 推进一次状态，攻击冷却、移动、无敌帧、复活都走时间轴。</p></article>
-        <article><strong>2. Spatial System</strong><p>Player_X / Monster_X 决定攻击范围、碰撞半径、击退方向和怪物追踪。</p></article>
-        <article><strong>3. Render Layer</strong><p>HP/MP/EXP 条、sprite 状态、伤害跳字和事件日志全部监听模拟状态。</p></article>
-        <article><strong>4. Data Adapter</strong><p>{dataCoverage ? `当前加载：${dataCoverage.monsters} monsters / ${dataCoverage.maps} maps / ${dataCoverage.items} items.` : '下一步接 MeowDB snapshots 和 AppData 映射。'}</p></article>
       </div>
 
       <section className="ai-log-panel">
