@@ -8,7 +8,8 @@
 .ai-battle-controls,
 .ai-glass-panel,
 .ai-log-panel,
-.ai-architecture-grid article {
+.ai-architecture-grid article,
+.ai-context-strip {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: linear-gradient(135deg, rgba(22, 35, 58, 0.88), rgba(14, 22, 38, 0.9));
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
@@ -120,15 +121,44 @@
   box-shadow: inset 0 -32px 70px rgba(0, 0, 0, 0.25);
 }
 
+.ai-stage-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 18, 24, 0.78);
+}
+
+.ai-stage-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 15, 22, 0.28), rgba(8, 15, 22, 0.78)),
+    radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+}
+
+.ai-stage-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  opacity: 0.72;
+  filter: saturate(1.12) contrast(1.08);
+}
+
 .ai-stage::before {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1;
   background-image:
-    radial-gradient(circle at 8% 62%, rgba(255, 255, 255, 0.45) 0 24px, transparent 25px),
-    radial-gradient(circle at 16% 60%, rgba(255, 255, 255, 0.38) 0 34px, transparent 35px),
-    radial-gradient(circle at 82% 22%, rgba(255, 255, 255, 0.35) 0 28px, transparent 29px),
-    radial-gradient(circle at 92% 20%, rgba(255, 255, 255, 0.3) 0 38px, transparent 39px);
+    radial-gradient(circle at 8% 62%, rgba(255, 255, 255, 0.22) 0 24px, transparent 25px),
+    radial-gradient(circle at 16% 60%, rgba(255, 255, 255, 0.18) 0 34px, transparent 35px),
+    radial-gradient(circle at 82% 22%, rgba(255, 255, 255, 0.18) 0 28px, transparent 29px),
+    radial-gradient(circle at 92% 20%, rgba(255, 255, 255, 0.16) 0 38px, transparent 39px);
   opacity: 0.75;
   pointer-events: none;
 }
@@ -137,10 +167,10 @@
   position: absolute;
   left: 18px;
   top: 16px;
-  z-index: 5;
+  z-index: 12;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.42);
   color: #fff;
   font-size: 13px;
   backdrop-filter: blur(8px);
@@ -151,9 +181,10 @@
   left: 0;
   right: 0;
   bottom: 72px;
+  z-index: 3;
   height: 22px;
-  background: linear-gradient(180deg, #8f5d32, #4a2d1e);
-  border-top: 5px solid #c78a4a;
+  background: linear-gradient(180deg, rgba(183, 126, 66, 0.88), rgba(74, 45, 30, 0.92));
+  border-top: 5px solid rgba(199, 138, 74, 0.9);
   box-shadow: 0 -10px 24px rgba(42, 75, 24, 0.4);
 }
 
@@ -161,6 +192,7 @@
 .ai-collision-zone {
   position: absolute;
   bottom: 86px;
+  z-index: 4;
   height: 82px;
   border-radius: 999px;
   transform: translateX(0);
@@ -191,22 +223,40 @@
 .ai-sprite-body {
   display: grid;
   place-items: center;
-  width: 76px;
-  height: 76px;
+  width: 96px;
+  height: 96px;
   border-radius: 18px;
   font-size: 46px;
-  background: rgba(255, 255, 255, 0.32);
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.22);
+  border: 2px solid rgba(255, 255, 255, 0.44);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(4px);
+  overflow: visible;
 }
 
 .ai-sprite.player .ai-sprite-body {
-  background: linear-gradient(180deg, rgba(255, 244, 194, 0.68), rgba(111, 157, 255, 0.45));
+  width: 130px;
+  height: 130px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.ai-sprite.player .real-character-preview {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.38));
 }
 
 .ai-sprite.monster .ai-sprite-body {
-  background: linear-gradient(180deg, rgba(255, 185, 213, 0.7), rgba(174, 85, 207, 0.48));
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ai-sprite.monster .mg-monster-icon {
+  transform: scale(1.24);
 }
 
 .ai-sprite.attack .ai-sprite-body {
@@ -224,7 +274,7 @@
 .ai-sprite small {
   padding: 3px 7px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.38);
+  background: rgba(0, 0, 0, 0.48);
   color: #fff;
   font-size: 10px;
   letter-spacing: 0.08em;
@@ -234,7 +284,7 @@
   width: 70px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.32);
   overflow: hidden;
 }
 
@@ -273,6 +323,33 @@
   border-radius: 999px;
   color: #fff;
   background: rgba(0, 0, 0, 0.38);
+}
+
+.ai-context-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px;
+  color: #f8fbff;
+}
+
+.ai-context-strip div {
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ai-context-strip span {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(244, 250, 255, 0.62);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ai-context-strip strong {
+  font-size: 14px;
 }
 
 .ai-panel-grid {
@@ -419,7 +496,8 @@
   .ai-battle-top,
   .ai-battle-controls,
   .ai-panel-grid,
-  .ai-architecture-grid {
+  .ai-architecture-grid,
+  .ai-context-strip {
     grid-template-columns: 1fr;
   }
 
