@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { SandboxPanel } from '../ai/SandboxPanel';
 import { loadGameData } from '../ai/simulator/data';
 import { JOB_OPTIONS } from '../ai/simulator/jobs';
+import TickBattleSimulator from './TickBattleSimulator.jsx';
 import '../ai/sandbox.css';
 
 const STRATEGIES = [
@@ -40,6 +41,7 @@ export default function AiRoutePage() {
   const [targetLevel, setTargetLevel] = useState(40);
   const [strategy, setStrategy] = useState('balanced');
   const [budget, setBudget] = useState('low');
+  const [viewMode, setViewMode] = useState('visual');
 
   useEffect(() => {
     loadGameData()
@@ -65,19 +67,25 @@ export default function AiRoutePage() {
     ...weights,
   }), [jobKey, startLevel, safeTargetLevel, strategy, weights.allowHighRisk, weights.travelPenalty, weights.potionPenalty, weights.materialValueWeight]);
 
+  const dataCoverage = data ? {
+    monsters: data.monsters?.length ?? 0,
+    maps: data.maps?.length ?? 0,
+    items: data.equipmentItems?.length ?? 0,
+  } : null;
+
   return (
     <section className="section-card ai-route-page">
       <div className="sandbox-header">
         <div>
           <p className="eyebrow">MapleStory Classic World</p>
-          <h1>AI 路线模拟器</h1>
+          <h1>AI 可视化路线模拟器</h1>
           <p className="section-copy">
-            这个页面会把怪物属性、地图刷怪组成、装备、AP/SP、命中、药耗、死亡风险和金币压力放进同一个开荒模拟里。
+            这版把原来的无头数值沙盒升级成前端可视化模拟器：Tick 时间轴、坐标空间、攻击范围、碰撞伤害、无敌帧、药水消耗、伤害跳字和 UI 状态同步都会直接展示。
           </p>
         </div>
         <div className="hero-badge">
-          <span>AI BOT</span>
-          <strong>Guidebook v1</strong>
+          <span>AI ENGINE</span>
+          <strong>{viewMode === 'visual' ? 'Visual Tick' : 'Route RL'}</strong>
         </div>
       </div>
 
@@ -135,30 +143,37 @@ export default function AiRoutePage() {
             </select>
           </label>
           <label>
-            模拟说明
-            <input value={selectedJob?.notes ?? '当前职业参数读取中'} readOnly />
+            模拟视图
+            <select value={viewMode} onChange={(event) => setViewMode(event.target.value)}>
+              <option value="visual">实时战斗可视化</option>
+              <option value="route">路线决策沙盒</option>
+            </select>
           </label>
         </div>
+
+        <p className="job-note">{selectedJob?.notes ?? '当前职业参数读取中'}</p>
       </div>
 
       <div className="sandbox-findings">
         <div className="finding optimization">
-          <strong>怪物层</strong>
-          <p>使用等级、HP、EXP、攻击、防御、avoid、地图出现数，输出加权命中和击杀效率。</p>
+          <strong>从回合制到 Tick-based</strong>
+          <p>每个动作都占用时间：攻击冷却、怪物追踪、复活、无敌帧和药水触发都按 Tick 推进。</p>
         </div>
         <div className="finding success">
-          <strong>装备层</strong>
-          <p>使用等级需求、职业需求、攻击/魔攻、命中、属性、防御和资金模式，决定是否值得换装。</p>
+          <strong>从纯数值到空间判定</strong>
+          <p>Player_X / Monster_X 决定攻击范围；碰撞半径触发 touch damage、击退和 i-frames。</p>
         </div>
         <div className="finding warning">
-          <strong>经济层</strong>
-          <p>第一版已接药耗/金币压力；下一步会接 MeowDB NPC 商店、消耗品价格和本地快照。</p>
+          <strong>从后台算法到 UI 渲染</strong>
+          <p>HP/MP/EXP 条、伤害跳字、状态动画和公式回放会跟随模拟状态实时更新。</p>
         </div>
       </div>
 
       {loadError ? <p className="load-error">AI 数据读取提示：{loadError}</p> : null}
 
-      {!data ? (
+      {viewMode === 'visual' ? (
+        <TickBattleSimulator jobKey={jobKey} strategy={strategy} budget={budget} dataCoverage={dataCoverage} />
+      ) : !data ? (
         <div className="sandbox-empty">正在读取 AI 模拟数据...</div>
       ) : (
         <SandboxPanel data={data} input={input} />
