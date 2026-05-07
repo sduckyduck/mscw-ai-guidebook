@@ -172,7 +172,7 @@ export default function AiRoutePage() {
       {loadError ? <p className="load-error">AI 数据读取提示：{loadError}</p> : null}
 
       {viewMode === 'visual' ? (
-        <TickBattleSimulator jobKey={jobKey} strategy={strategy} budget={budget} dataCoverage={dataCoverage} />
+        <TickBattleSimulator jobKey={jobKey} strategy={strategy} budget={budget} dataCoverage={dataCoverage} gameData={data} />
       ) : !data ? (
         <div className="sandbox-empty">正在读取 AI 模拟数据...</div>
       ) : (
