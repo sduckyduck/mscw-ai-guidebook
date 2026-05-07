@@ -5,51 +5,69 @@ const TICK_MS = 100;
 const WORLD_WIDTH = 760;
 const COLLISION_RADIUS = 34;
 
-const MONSTER_PRESETS = {
+const FALLBACK_MONSTERS = {
   octopus: {
+    key: 'octopus',
     id: 'octopus',
     name: 'Octopus / 章鱼',
+    lookupNames: ['Octopus'],
     level: 12,
     maxHp: 200,
+    mp: 30,
     exp: 24,
     physicalAttack: 62,
+    magicAttack: 0,
     physicalDefense: 8,
     magicDefense: 6,
+    accuracy: 70,
     avoid: 5,
-    speed: 18,
-    touchDamage: 38,
+    visualSpeed: 18,
     spawnX: 590,
     meso: 34,
+    attributes: [],
+    source: 'fallback preset',
   },
   greenMushroom: {
-    id: 'green-mushroom',
+    key: 'greenMushroom',
+    id: 'greenMushroom',
     name: 'Green Mushroom / 绿蘑菇',
+    lookupNames: ['Green Mushroom'],
     level: 15,
     maxHp: 250,
+    mp: 30,
     exp: 32,
     physicalAttack: 72,
+    magicAttack: 0,
     physicalDefense: 12,
     magicDefense: 8,
+    accuracy: 85,
     avoid: 6,
-    speed: 15,
-    touchDamage: 45,
+    visualSpeed: 15,
     spawnX: 585,
     meso: 42,
+    attributes: [],
+    source: 'fallback preset',
   },
   zombieMushroom: {
-    id: 'zombie-mushroom',
+    key: 'zombieMushroom',
+    id: 'zombieMushroom',
     name: 'Zombie Mushroom / 僵尸蘑菇',
+    lookupNames: ['Zombie Mushroom'],
     level: 24,
-    maxHp: 500,
-    exp: 90,
-    physicalAttack: 110,
-    physicalDefense: 25,
-    magicDefense: 20,
-    avoid: 10,
-    speed: 13,
-    touchDamage: 78,
+    maxHp: 443,
+    mp: 30,
+    exp: 45,
+    physicalAttack: 104,
+    magicAttack: 0,
+    physicalDefense: 15,
+    magicDefense: 15,
+    accuracy: 108,
+    avoid: 15,
+    visualSpeed: 13,
     spawnX: 600,
     meso: 78,
+    attributes: ['Holy weak', 'Undead'],
+    source: 'verified fallback from monster table',
   },
 };
 
@@ -76,6 +94,67 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function safeNumber(value, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function cloneState(value) {
+  if (typeof structuredClone === 'function') return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
+}
+
+function getDefenseMultiplier(defense) {
+  return 100 / (Math.max(0, defense) + 100);
+}
+
+function normalizeVisualSpeed(rawSpeed, fallbackSpeed) {
+  const raw = safeNumber(rawSpeed, fallbackSpeed);
+  if (!Number.isFinite(raw) || raw === 0) return fallbackSpeed;
+  return clamp(Math.abs(raw) / 2.8, 8, 28);
+}
+
+function getAttributes(raw, fallback) {
+  const attrs = [...(fallback.attributes ?? [])];
+  if (raw?.undead && !attrs.includes('Undead')) attrs.push('Undead');
+  if (typeof raw?.elements === 'string' && raw.elements.trim()) attrs.push(raw.elements.trim());
+  return Array.from(new Set(attrs));
+}
+
+function normalizeMonster(raw, fallback) {
+  return {
+    ...fallback,
+    id: raw?.id ?? fallback.id,
+    name: raw?.name ? `${raw.name}` : fallback.name,
+    level: safeNumber(raw?.level, fallback.level),
+    maxHp: safeNumber(raw?.hp ?? raw?.maxHp, fallback.maxHp),
+    mp: safeNumber(raw?.mp, fallback.mp),
+    exp: safeNumber(raw?.exp, fallback.exp),
+    physicalAttack: safeNumber(raw?.PADamage ?? raw?.physicalAttack, fallback.physicalAttack),
+    magicAttack: safeNumber(raw?.MADamage ?? raw?.magicAttack, fallback.magicAttack),
+    physicalDefense: safeNumber(raw?.PDDamage ?? raw?.physicalDefense, fallback.physicalDefense),
+    magicDefense: safeNumber(raw?.MDDamage ?? raw?.magicDefense, fallback.magicDefense),
+    accuracy: safeNumber(raw?.acc ?? raw?.accuracy, fallback.accuracy),
+    avoid: safeNumber(raw?.eva ?? raw?.avoid, fallback.avoid),
+    visualSpeed: normalizeVisualSpeed(raw?.speed, fallback.visualSpeed),
+    touchDamage: safeNumber(raw?.PADamage ?? raw?.physicalAttack, fallback.physicalAttack),
+    meso: Math.max(1, Math.round(safeNumber(raw?.exp, fallback.exp) * 1.7)),
+    attributes: getAttributes(raw, fallback),
+    source: raw ? 'public/data/app_metadata/monsters.json' : fallback.source,
+    thumbnail: raw?.thumbnail,
+    gif: raw?.gif ?? raw?.gifs?.move,
+  };
+}
+
+function findRawMonster(gameData, fallback) {
+  const monsters = Array.isArray(gameData?.monsters) ? gameData.monsters : [];
+  return monsters.find((monster) => fallback.lookupNames.some((name) => String(monster.name).toLowerCase() === name.toLowerCase()));
+}
+
+function buildMonsterOptions(gameData) {
+  return Object.values(FALLBACK_MONSTERS).map((fallback) => normalizeMonster(findRawMonster(gameData, fallback), fallback));
+}
+
 function getHitRate(profile, monster) {
   if (profile.accuracy >= 999) return 1;
   const raw = (profile.accuracy * 100) / ((Math.max(0, monster.level - 18) + 51) * 5);
@@ -83,10 +162,14 @@ function getHitRate(profile, monster) {
   return clamp(1.05 - needed, 0.05, 1);
 }
 
+function averageDamageAfterDefense(profile, monster) {
+  const rawAverage = (profile.minDamage + profile.maxDamage) / 2;
+  return Math.max(1, rawAverage * getDefenseMultiplier(monster.physicalDefense));
+}
+
 function rollDamage(profile, monster) {
-  const defenseReduction = monster.physicalDefense / (monster.physicalDefense + 100);
   const raw = profile.minDamage + Math.random() * (profile.maxDamage - profile.minDamage);
-  return Math.max(1, Math.round(raw * (1 - defenseReduction)));
+  return Math.max(1, Math.round(raw * getDefenseMultiplier(monster.physicalDefense)));
 }
 
 function makeInitialState(profile, monster) {
@@ -108,6 +191,8 @@ function makeInitialState(profile, monster) {
       knockback: 0,
       kills: 0,
       deaths: 0,
+      hitsLanded: 0,
+      damageDone: 0,
       hpPotions: 0,
       mpPotions: 0,
     },
@@ -120,7 +205,7 @@ function makeInitialState(profile, monster) {
       action: 'move',
     },
     floaters: [],
-    log: ['模拟器就绪：Tick-based combat sandbox loaded.'],
+    log: [`模拟器就绪：${monster.name} HP ${monster.maxHp}, P.DEF ${monster.physicalDefense}, EXP ${monster.exp}.`],
     lastFormula: '等待第一次攻击判定。',
   };
 }
@@ -130,7 +215,7 @@ function pushLog(log, message) {
 }
 
 function simulateTick(state, profile, monster, policy) {
-  const next = structuredClone(state);
+  const next = cloneState(state);
   next.tick += 1;
   next.virtualSeconds = Math.round(next.tick * TICK_MS / 100) / 10;
   next.floaters = next.floaters
@@ -147,10 +232,11 @@ function simulateTick(state, profile, monster, policy) {
     mob.action = 'respawn';
     if (mob.respawnTicks === 0) {
       mob.alive = true;
-      mob.hp = mob.maxHp;
+      mob.hp = monster.maxHp;
+      mob.maxHp = monster.maxHp;
       mob.x = monster.spawnX;
       mob.action = 'move';
-      next.log = pushLog(next.log, `${monster.name} respawned at x=${monster.spawnX}.`);
+      next.log = pushLog(next.log, `${monster.name} respawned with ${monster.maxHp} HP.`);
     }
     return next;
   }
@@ -172,10 +258,13 @@ function simulateTick(state, profile, monster, policy) {
 
     if (didHit) {
       const damage = rollDamage(profile, monster);
+      const beforeHp = mob.hp;
       mob.hp = Math.max(0, mob.hp - damage);
       mob.action = 'hit';
+      player.hitsLanded += 1;
+      player.damageDone += damage;
       next.floaters.push({ id: `${next.tick}-dmg`, value: damage, type: 'damage', x: mob.x, y: 56, life: 26, opacity: 1 });
-      next.lastFormula = `Damage = random(${profile.minDamage}-${profile.maxDamage}) × defenseMult(${monster.physicalDefense}) → ${damage}; hitRate=${Math.round(hitRate * 100)}%; range=${Math.round(distance)}/${profile.attackRange}`;
+      next.lastFormula = `Damage = random(${profile.minDamage}-${profile.maxDamage}) × 100/(${monster.physicalDefense}+100) → ${damage}; ${monster.name} HP ${beforeHp} → ${mob.hp}/${monster.maxHp}; hitRate=${Math.round(hitRate * 100)}%; range=${Math.round(distance)}/${profile.attackRange}`;
 
       if (mob.hp <= 0) {
         mob.alive = false;
@@ -184,7 +273,7 @@ function simulateTick(state, profile, monster, policy) {
         player.kills += 1;
         player.exp += monster.exp;
         player.meso += monster.meso;
-        next.log = pushLog(next.log, `击杀 ${monster.name}: +${monster.exp} EXP, +${monster.meso} meso.`);
+        next.log = pushLog(next.log, `击杀 ${monster.name}: ${player.hitsLanded} landed hits so far, +${monster.exp} EXP, +${monster.meso} meso.`);
       }
     } else {
       next.floaters.push({ id: `${next.tick}-miss`, value: 'MISS', type: 'miss', x: mob.x, y: 56, life: 20, opacity: 1 });
@@ -195,7 +284,7 @@ function simulateTick(state, profile, monster, policy) {
   }
 
   if (mob.alive && distance > COLLISION_RADIUS) {
-    mob.x = clamp(mob.x - direction * (monster.speed * TICK_MS / 1000), 35, WORLD_WIDTH - 35);
+    mob.x = clamp(mob.x - direction * (monster.visualSpeed * TICK_MS / 1000), 35, WORLD_WIDTH - 35);
     mob.action = mob.action === 'hit' ? 'hit' : 'move';
   }
 
@@ -208,7 +297,7 @@ function simulateTick(state, profile, monster, policy) {
     player.x = clamp(player.x - direction * 34, 40, WORLD_WIDTH - 40);
     player.action = 'hit';
     next.floaters.push({ id: `${next.tick}-touch`, value: `-${rawTouch}`, type: 'touch', x: player.x, y: 52, life: 26, opacity: 1 });
-    next.log = pushLog(next.log, `Touch damage: ${rawTouch}. 触发 10 ticks 无敌帧和击退。`);
+    next.log = pushLog(next.log, `Touch damage from ${monster.name}: ${rawTouch}. 触发 10 ticks 无敌帧和击退。`);
   }
 
   if (player.hp > 0 && player.hp / player.maxHp < 0.35 && player.meso >= 50) {
@@ -259,30 +348,33 @@ function StatBar({ label, value, max, className }) {
   );
 }
 
-function SimulatorSprite({ type, x, action, iframes = 0, hp, maxHp }) {
+function SimulatorSprite({ type, x, action, iframes = 0, hp, maxHp, image }) {
   const left = `${(x / WORLD_WIDTH) * 100}%`;
   return (
     <div className={`ai-sprite ${type} ${action} ${iframes > 0 ? 'iframe' : ''}`} style={{ left }}>
       <div className="ai-sprite-hp"><span style={{ width: pct(hp, maxHp) }} /></div>
-      <div className="ai-sprite-body">{type === 'player' ? '⚔️' : '🐙'}</div>
+      <div className="ai-sprite-body">
+        {image ? <img src={`/${String(image).replace(/^\/+/, '')}`} alt="" /> : (type === 'player' ? '⚔️' : '🐙')}
+      </div>
       <small>{type === 'player' ? action.toUpperCase() : action}</small>
     </div>
   );
 }
 
-export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'balanced', budget = 'low', dataCoverage = null }) {
-  const [monsterId, setMonsterId] = useState('octopus');
+export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'balanced', budget = 'low', dataCoverage = null, gameData = null }) {
+  const [monsterKey, setMonsterKey] = useState('zombieMushroom');
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
 
   const profile = JOB_COMBAT[jobKey] ?? JOB_COMBAT.spearman;
-  const monster = MONSTER_PRESETS[monsterId] ?? MONSTER_PRESETS.octopus;
+  const monsterOptions = useMemo(() => buildMonsterOptions(gameData), [gameData]);
+  const monster = monsterOptions.find((item) => item.key === monsterKey) ?? monsterOptions[0];
   const [sim, setSim] = useState(() => makeInitialState(profile, monster));
 
   useEffect(() => {
     setRunning(false);
     setSim(makeInitialState(profile, monster));
-  }, [jobKey, monsterId]);
+  }, [jobKey, monsterKey, monster.id]);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -294,7 +386,9 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
 
   const distance = Math.abs(sim.monster.x - sim.player.x);
   const hitRate = useMemo(() => getHitRate(profile, monster), [profile, monster]);
-  const estimatedHits = Math.ceil(monster.maxHp / Math.max(1, (profile.minDamage + profile.maxDamage) / 2));
+  const avgDamage = useMemo(() => averageDamageAfterDefense(profile, monster), [profile, monster]);
+  const estimatedHits = Math.ceil(monster.maxHp / Math.max(1, avgDamage));
+  const hpPerExp = monster.exp > 0 ? (monster.maxHp / monster.exp).toFixed(2) : '—';
 
   return (
     <div className="ai-battle-shell">
@@ -302,7 +396,7 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
         <div>
           <p className="eyebrow">Tick-based Visual Simulator</p>
           <h2>实时伤害计算模拟器</h2>
-          <p>把原本无头的数值沙盒拆成 Tick、空间坐标、碰撞判定、攻击判定、状态条和跳字渲染。</p>
+          <p>当前怪物数据优先读取 public/data/app_metadata/monsters.json；没有数据时才使用 fallback。Zombie Mushroom 已按表格修正为 HP 443 / EXP 45 / P.DEF 15 / M.DEF 15 / ACC 108 / AVOID 15。</p>
         </div>
         <div className="ai-engine-badge">
           <span>{Math.round(1000 / TICK_MS)} Tick/s</span>
@@ -313,8 +407,8 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
       <div className="ai-battle-controls">
         <label>
           怪物
-          <select value={monsterId} onChange={(event) => setMonsterId(event.target.value)}>
-            {Object.values(MONSTER_PRESETS).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+          <select value={monsterKey} onChange={(event) => setMonsterKey(event.target.value)}>
+            {monsterOptions.map((item) => <option key={item.key} value={item.key}>{item.name}</option>)}
           </select>
         </label>
         <label>
@@ -332,12 +426,12 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
 
       <div className="ai-stage-wrap">
         <div className="ai-stage">
-          <div className="ai-stage-title">Training Field · {profile.label} vs {monster.name}</div>
+          <div className="ai-stage-title">Training Field · {profile.label} vs {monster.name} · HP {monster.maxHp}</div>
           <div className="ai-range-zone" style={{ left: `${((sim.player.x - profile.attackRange) / WORLD_WIDTH) * 100}%`, width: `${(profile.attackRange * 2 / WORLD_WIDTH) * 100}%` }} />
           <div className="ai-collision-zone" style={{ left: `${((sim.player.x - COLLISION_RADIUS) / WORLD_WIDTH) * 100}%`, width: `${(COLLISION_RADIUS * 2 / WORLD_WIDTH) * 100}%` }} />
           <div className="ai-ground-line" />
           <SimulatorSprite type="player" x={sim.player.x} action={sim.player.action} iframes={sim.player.iframes} hp={sim.player.hp} maxHp={sim.player.maxHp} />
-          {sim.monster.alive ? <SimulatorSprite type="monster" x={sim.monster.x} action={sim.monster.action} hp={sim.monster.hp} maxHp={sim.monster.maxHp} /> : <div className="ai-respawn-marker" style={{ left: `${(monster.spawnX / WORLD_WIDTH) * 100}%` }}>respawn...</div>}
+          {sim.monster.alive ? <SimulatorSprite type="monster" x={sim.monster.x} action={sim.monster.action} hp={sim.monster.hp} maxHp={sim.monster.maxHp} image={monster.gif || monster.thumbnail} /> : <div className="ai-respawn-marker" style={{ left: `${(monster.spawnX / WORLD_WIDTH) * 100}%` }}>respawn...</div>}
           {sim.floaters.map((item) => (
             <div key={item.id} className={`ai-floater ${item.type}`} style={{ left: `${(item.x / WORLD_WIDTH) * 100}%`, bottom: `${item.y}%`, opacity: item.opacity }}>
               {item.value}
@@ -356,18 +450,21 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
             <div><span>Lv</span><strong>{sim.player.level}</strong></div>
             <div><span>Meso</span><strong>{sim.player.meso}</strong></div>
             <div><span>Kills</span><strong>{sim.player.kills}</strong></div>
-            <div><span>Deaths</span><strong>{sim.player.deaths}</strong></div>
+            <div><span>Hits</span><strong>{sim.player.hitsLanded}</strong></div>
           </div>
         </section>
 
         <section className="ai-glass-panel">
-          <h3>判定数据</h3>
+          <h3>怪物真实数据</h3>
+          <StatBar label="MOB" value={sim.monster.hp} max={sim.monster.maxHp} className="hp" />
           <div className="ai-metric-list">
-            <p><span>Distance</span><strong>{Math.round(distance)} px</strong></p>
-            <p><span>Attack Range</span><strong>{profile.attackRange} px</strong></p>
-            <p><span>Collision Radius</span><strong>{COLLISION_RADIUS} px</strong></p>
-            <p><span>Hit Rate</span><strong>{Math.round(hitRate * 100)}%</strong></p>
-            <p><span>Hits to Kill</span><strong>≈ {estimatedHits}</strong></p>
+            <p><span>Level / HP / EXP</span><strong>Lv.{monster.level} / {monster.maxHp} / {monster.exp}</strong></p>
+            <p><span>P.DMG / M.DMG</span><strong>{monster.physicalAttack} / {monster.magicAttack}</strong></p>
+            <p><span>P.DEF / M.DEF</span><strong>{monster.physicalDefense} / {monster.magicDefense}</strong></p>
+            <p><span>ACC / AVOID</span><strong>{monster.accuracy} / {monster.avoid}</strong></p>
+            <p><span>HP/EXP</span><strong>{hpPerExp}</strong></p>
+            <p><span>Attributes</span><strong>{monster.attributes.length ? monster.attributes.join(' · ') : '—'}</strong></p>
+            <p><span>Source</span><strong>{monster.source}</strong></p>
           </div>
         </section>
 
@@ -377,9 +474,35 @@ export default function TickBattleSimulator({ jobKey = 'spearman', strategy = 'b
           <div className="ai-mini-tags">
             <span>策略：{strategy}</span>
             <span>资金：{budget}</span>
-            <span>HP药：{sim.player.hpPotions}</span>
-            <span>MP药：{sim.player.mpPotions}</span>
+            <span>平均伤害≈{Math.round(avgDamage)}</span>
+            <span>预计击数≈{estimatedHits}</span>
           </div>
+        </section>
+      </div>
+
+      <div className="ai-panel-grid">
+        <section className="ai-glass-panel">
+          <h3>判定数据</h3>
+          <div className="ai-metric-list">
+            <p><span>Distance</span><strong>{Math.round(distance)} px</strong></p>
+            <p><span>Attack Range</span><strong>{profile.attackRange} px</strong></p>
+            <p><span>Collision Radius</span><strong>{COLLISION_RADIUS} px</strong></p>
+            <p><span>Hit Rate</span><strong>{Math.round(hitRate * 100)}%</strong></p>
+            <p><span>Defense Multiplier</span><strong>{getDefenseMultiplier(monster.physicalDefense).toFixed(3)}</strong></p>
+          </div>
+        </section>
+        <section className="ai-glass-panel">
+          <h3>消耗统计</h3>
+          <div className="ai-metric-list">
+            <p><span>HP Potions</span><strong>{sim.player.hpPotions}</strong></p>
+            <p><span>MP Potions</span><strong>{sim.player.mpPotions}</strong></p>
+            <p><span>Deaths</span><strong>{sim.player.deaths}</strong></p>
+            <p><span>Total Damage Done</span><strong>{sim.player.damageDone}</strong></p>
+          </div>
+        </section>
+        <section className="ai-glass-panel">
+          <h3>数据校验</h3>
+          <p className="section-copy">如果跳字是 111，Zombie Mushroom 的 443 HP 至少需要 4 次命中才会死亡；现在击杀判定只在当前 HP 扣到 0 后触发。</p>
         </section>
       </div>
 
